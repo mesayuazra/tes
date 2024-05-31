@@ -17,6 +17,7 @@ def home():
 @app.route('/books',methods=['POST'])
 def books_post():
   url_receive = request.form['url_give']
+  test = "test"
   rating_receive = request.form['rating_give']
   comment_receive = request.form['comment_give']
   
