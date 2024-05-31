@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Collections</title>
+
+  <!-- Bootsrap  -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+    crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <style>
+    .mytitle {
+      width: 100%;
+      height: 300px;
+
+      background-image: url('/static/seokjin-abyss-cover.jpg');
+      background-position: center;
+      background-size: contain;
+
+      color: white;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mytitle>button {
+      width: 200px;
+      height: 50px;
+
+      background-color: transparent;
+      color: white;
+
+      border-radius: 50px;
+      border: 1px solid white;
+
+      margin-top: 10px;
+    }
+
+    .mytitle>button:hover {
+      background-color: white;
+      color: black;
+    }
+
+    .mycomment {
+      color: gray;
+    }
+
+    .mycards {
+      margin: 20px auto 0px auto;
+      width: 95%;
+      max-width: 1000px;
+    }
+
+    .mypost {
+      width: 95%;
+      max-width: 500px;
+      margin: 20px auto 0px auto;
+      padding: 20px;
+      box-shadow: 0px 0px 3px 0px rgb(2, 39, 81);
+
+      display: none;
+    }
+
+    .mybtns {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+
+      margin-top: 20px;
+    }
+
+    .mybtns>button {
+      margin-right: 10px;
+    }
+
+    #footer {
+      position: relative;
+      bottom: 0;
+      margin: 20px auto 0px 50px;
+    }
+  </style>
+
+  <script>
+    $(document).ready(function () {
+      list_books()
+    })
+
+    function list_books() {
+      $.ajax({
+        type: 'GET',
+        url: '/books',
+        data: {},
+        success: function (response) {
+          let rows = response['books']
+          for (let i = 0; i < rows.length; i++) {
+            let image = rows[i]['image']
+            let title = rows[i]['title']
+            let rating = rows[i]['rating']
+            let comment = rows[i]['comment']
+
+            let rating_image = '⭐'.repeat(rating)
+            let temp_html = `<div class="col" id="card">
+              <div class="card h-100">
+                <img src="${image}"
+                  class="card-img-top">
+                <div class="card-body">
+                  <h5 class="card-title">${title}</h5>
+                  <p>${rating_image}</p>
+                  <p class="mycomment">${comment}</p>
+                </div>
+                <button onclick="window.location.href='/update/books'" type="button" class="btn btn-dark">Update</button>
+                <button onclick="del()" type="button" class="btn btn-danger">Delete</button>
+              </div>
+            </div>`;
+
+            $('#card-box').append(temp_html)
+          }
+        }
+      })
+    }
+
+    function post_books() {
+      let url = $('#url').val()
+      let rating = $('#rating').val()
+      let comment = $('#comment').val()
+
+      $.ajax({
+        type: 'POST',
+        url: '/books',
+        data: { url_give: url, rating_give: rating, comment_give: comment },
+        success: function (response) {
+          alert(response['msg'])
+          window.location.reload()
+        }
+      })
+    }
+
+    function open_box() {
+      $('#post-box').show()
+    }
+
+    function close_box() {
+      $('#post-box').hide()
+    }
+/*
+    function del(id) {
+      $.ajax({
+        type: 'POST',
+        url: '/delete/books',
+        data: { id: id.toString() },
+        success: function (response) {
+          alert(response['msg'])
+          $('#card' + id).remove()
+        }
+      })
+    }
+    */
+  </script>
+
+</head>
+
+<body>
+  <div class="mytitle">
+    <h1>My Books Collection</h1>
+    <button onclick="open_box()">Save a book</button>
+  </div>
+  <div class="mypost" id="post-box">
+    <div class="form-floating mb-3">
+      <input id="url" type="url" class="form-control" placeholder="name@example.com">
+      <label>Book's URL</label>
+    </div>
+    <div class="input-group mb-3">
+      <label class="input-group-text" for="inputGroupSelect01">Rating</label>
+      <select class="form-select" id="rating">
+        <option selected>-- Select a rating--</option>
+        <option value="1">⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+      </select>
+    </div>
+    <div class="form-floating">
+      <textarea id="comment" class="form-control" placeholder="Leave a comment here"></textarea>
+      <label for="floatingTextarea2">Comment</label>
+    </div>
+    <div class="mybtns">
+      <button onclick="post_books()" type="button" class="btn btn-dark">Save</button>
+      <button onclick="close_box()" type="button" class="btn btn-outline-dark">Close</button>
+    </div>
+  </div>
+  <div class="mycards">
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="card-box">
+    </div>
+  </div>
+
+<!-- Footer start -->
+<footer class="pt-4 my-md-5 pt-md-5 border-top">
+  <div class="row footer-down" id="footer">
+    <div class="col-6 col-md">
+      <h5>Mesayu Fitri Novianti Azra</h5>
+      <p>ID legiatan MSIB saya adalah 8254350</p>
+    </div>
+    <div class="col-6 col-md">
+      <h5>Hobi</h5>
+      <ul class="list-unstyled text-small">
+        <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Tidur</a></li>
+        <li class="mb-1"><a class="link-secondary text-decoration-none" href="#">Makan</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- Footer end -->
+</body>
+
+</html>
